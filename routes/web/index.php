@@ -20,3 +20,5 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 });
+
+require base_path('routes/web/admin.php');

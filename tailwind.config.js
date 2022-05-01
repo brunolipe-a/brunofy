@@ -1,7 +1,7 @@
 module.exports = {
-    content: ["./resources/**/*.blade.php"],
+    content: ['./resources/**/*.blade.php'],
     theme: {
         extend: {},
     },
-    plugins: [require("@tailwindcss/forms")],
+    plugins: [require('@tailwindcss/forms')],
 };
