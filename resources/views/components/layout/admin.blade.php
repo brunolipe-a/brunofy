@@ -1,4 +1,4 @@
-@props(['headerTitle' => null])
+@props(['headerTitle' => null, 'headerRight' => null])
 
 @php
 $items = [
@@ -43,8 +43,9 @@ $items = [
                     class="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                     id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                     <span class="sr-only">Open user menu</span>
-                    <img class="h-8 w-8 rounded-full"
-                      src="https://ui-avatars.com/api/?name={{ auth()->user()->getAvatar() }}" alt="User Avatar">
+                    <img class="h-10 w-10 rounded-full"
+                      src="https://ui-avatars.com/api/?name={{ auth()->user()->getAvatar() }}&color=FFFFFF&background=111827"
+                      alt="User Avatar">
                   </button>
                 </div>
 
@@ -64,15 +65,31 @@ $items = [
                   x-transition:leave="transition ease-in duration-75"
                   x-transition:leave-start="transform opacity-100 scale-100"
                   x-transition:leave-end="transform opacity-0 scale-95"
-                  class="absolute right-0 mt-2 flex w-48 origin-top-right flex-col rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  class="absolute right-0 mt-2 flex w-48 origin-top-right flex-col rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700"
                   role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
                   <!-- Active: "bg-gray-100", Not Active: "" -->
                   {{-- <a href="#" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1"
                     id="user-menu-item-0">Your Profile</a> --}}
+
+                  <button
+                    class="flex px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-indigo-600 dark:hover:text-white"
+                    role="menuitem" tabindex="-1" id="theme-toggle">
+                    <x-heroicon-s-moon id="theme-toggle-dark-icon" class="hidden h-5 w-5" />
+                    <x-heroicon-s-sun id="theme-toggle-light-icon" class="hidden h-5 w-5" />
+                    <span class="ml-2">
+                      Tema
+                    </span>
+                  </button>
                   <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-200"
-                      role="menuitem" tabindex="-1" id="user-menu-item-2">Sair</button>
+                    <button type="submit"
+                      class="flex w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-indigo-600 dark:hover:text-white"
+                      role="menuitem" tabindex="-1" id="user-menu-item-2">
+                      <x-heroicon-s-logout class="h-5 w-5" />
+                      <span class="ml-2">
+                        Sair
+                      </span>
+                    </button>
                   </form>
 
                 </div>
@@ -120,9 +137,12 @@ $items = [
             </div>
           </div>
           <div class="mt-3 space-y-1 px-2">
-            {{-- <a href="#"
-              class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">Your
-              Profile</a> --}}
+            <button id="theme-toggle-mobile"
+              class="flex w-full items-center rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+              <x-heroicon-s-moon id="theme-toggle-dark-icon-mobile" class="hidden h-5 w-5" />
+              <x-heroicon-s-sun id="theme-toggle-light-icon-mobile" class="hidden h-5 w-5" />
+              <span class="ml-2">Tema</span>
+            </button>
 
             <form action="{{ route('logout') }}" method="POST">
               @csrf
@@ -135,19 +155,106 @@ $items = [
       </div>
     </nav>
 
-    <header class="bg-white shadow">
-      <div class="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-3xl font-bold text-gray-900">{{ $headerTitle ?? $attributes->get('pageTitle') }}</h1>
+    <header class="bg-white text-gray-900 shadow dark:bg-gray-900 dark:text-gray-100">
+      <div class="mx-auto max-w-7xl justify-between py-6 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl font-bold sm:text-3xl">{{ $headerTitle ?? $attributes->get('pageTitle') }}</h1>
+        @if ($headerRight)
+          {{ $headerRight }}
+        @else
+          <div></div>
+        @endif
       </div>
     </header>
     <main>
       <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-        <!-- Replace with your content -->
-        <div class="px-4 py-6 sm:px-0">
-          {{ $slot }}
-        </div>
-        <!-- /End replace -->
+        {{ $slot }}
       </div>
     </main>
   </div>
+  <script>
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+    var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+    // Change the icons inside the button based on previous settings
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia(
+        '(prefers-color-scheme: dark)').matches)) {
+      themeToggleLightIcon.classList.remove('hidden');
+    } else {
+      themeToggleDarkIcon.classList.remove('hidden');
+    }
+
+    var themeToggleBtn = document.getElementById('theme-toggle');
+
+    themeToggleBtn.addEventListener('click', function() {
+
+      //   toggle icons inside button
+      themeToggleDarkIcon.classList.toggle('hidden');
+      themeToggleLightIcon.classList.toggle('hidden');
+
+      // if set via local storage previously
+      if (localStorage.getItem('color-theme')) {
+        if (localStorage.getItem('color-theme') === 'light') {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        }
+
+        // if NOT set via local storage previously
+      } else {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        }
+      }
+
+    });
+  </script>
+  <script>
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon-mobile');
+    var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon-mobile');
+
+    // Change the icons inside the button based on previous settings
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia(
+        '(prefers-color-scheme: dark)').matches)) {
+      themeToggleLightIcon.classList.remove('hidden');
+    } else {
+      themeToggleDarkIcon.classList.remove('hidden');
+    }
+
+    var themeToggleBtn = document.getElementById('theme-toggle-mobile');
+
+    themeToggleBtn.addEventListener('click', function() {
+
+      //   toggle icons inside button
+      themeToggleDarkIcon.classList.toggle('hidden');
+      themeToggleLightIcon.classList.toggle('hidden');
+
+      // if set via local storage previously
+      if (localStorage.getItem('color-theme')) {
+        if (localStorage.getItem('color-theme') === 'light') {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        }
+
+        // if NOT set via local storage previously
+      } else {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        }
+      }
+
+    });
+  </script>
 </x-layout.app>

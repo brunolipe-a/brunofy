@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 
 class ArtistController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $artists = Artist::query()->paginate();
+        $artists = Artist::query()
+            ->search($request->get('search'))
+            ->paginate(10);
 
         return view('admin.artists.index', compact('artists'));
     }

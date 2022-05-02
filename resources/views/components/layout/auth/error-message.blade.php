@@ -1,7 +1,7 @@
 @if ($errors->any())
   <div class="absolute w-full bg-red-100 p-4 text-sm text-red-700 dark:bg-red-200 dark:text-red-800" role="alert">
     <div class="flex gap-4">
-      <x-heroicon-s-x-circle class="w-5 text-red-400" />
+      <x-heroicon-s-x-circle class="h-5 w-5" />
       <span>
         Existem {{ $errors->count() }} erros na sua requisição
       </span>
